@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "grafo.h"
 
+//exemplo de menu kkkkkk
+
 int main() {
     Grafo* g = criarGrafo(10); // Capacidade inicial para 10 cidades
     carregarArquivo(g, "inputs/exemplo.txt");
