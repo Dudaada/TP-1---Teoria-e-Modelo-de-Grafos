@@ -40,4 +40,7 @@ void carregarArquivo(Grafo* g, const char* nomeArquivo);
 // Libera memória do grafo
 void liberarGrafo(Grafo* g);
 
+// Retorna (imprime) os vizinhos de uma cidade
+void vizinhosCidade(Grafo* g, char* nomeCidade);
+
 #endif

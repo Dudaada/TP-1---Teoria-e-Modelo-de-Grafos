@@ -121,3 +121,20 @@ void vizinhosCidade(Grafo* g, char* nomeCidade) {
     }
     printf("\n");
 }
+
+// Retorna a quantidade de vizinhos de uma cidade
+int quantidadeVizinhos(Grafo* g, char* nomeCidade) {
+    int idx = buscarIndiceCidade(g, nomeCidade);
+    if (idx == -1) {
+        printf("Cidade '%s' nao encontrada no grafo.\n", nomeCidade);
+        return -1; // erro
+    }
+
+    int cont = 0;
+    Aresta* atual = g->vertices[idx].lista;
+    while (atual != NULL) {
+        cont++;
+        atual = atual->prox;
+    }
+    return cont;
+}
