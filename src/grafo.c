@@ -99,3 +99,25 @@ void liberarGrafo(Grafo* g) {
     free(g->vertices);
     free(g);
 }
+
+// Retorna (imprime) os vizinhos de uma cidade
+void vizinhosCidade(Grafo* g, char* nomeCidade) {
+    int idx = buscarIndiceCidade(g, nomeCidade);
+    if (idx == -1) {
+        printf("Cidade '%s' nao encontrada no grafo.\n", nomeCidade);
+        return;
+    }
+
+    printf("Vizinhos de %s: ", g->vertices[idx].nome);
+    Aresta* atual = g->vertices[idx].lista;
+    if (!atual) {
+        printf("Nenhum vizinho.\n");
+        return;
+    }
+
+    while (atual != NULL) {
+        printf("(%s, %d) ", g->vertices[atual->destino].nome, atual->peso);
+        atual = atual->prox;
+    }
+    printf("\n");
+}

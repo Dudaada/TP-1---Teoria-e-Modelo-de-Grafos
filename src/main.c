@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include "grafo.h"
 
-//exemplo de menu kkkkkk
-
 int main() {
     Grafo* g = criarGrafo(10); // Capacidade inicial para 10 cidades
     carregarArquivo(g, "inputs/exemplo.txt");
@@ -14,9 +12,11 @@ int main() {
         printf("1 - Mostrar grafo (lista de adjacencia)\n");
         printf("2 - Mostrar numero de cidades\n");
         printf("3 - Mostrar numero de estradas\n");
+        printf("4 - Mostrar vizinhos de uma cidade\n");
         printf("0 - Sair\n");
         printf("Escolha uma opcao: ");
         scanf("%d", &opcao);
+        getchar(); // consome o \n que sobra do scanf
 
         switch(opcao) {
             case 1:
@@ -28,6 +28,14 @@ int main() {
             case 3:
                 printf("Numero de estradas: %d\n", g->numArestas);
                 break;
+            case 4: {
+                char nomeCidade[30];
+                printf("Digite o nome da cidade: ");
+                fgets(nomeCidade, sizeof(nomeCidade), stdin);
+                nomeCidade[strcspn(nomeCidade, "\n")] = '\0'; // remover \n
+                vizinhosCidade(g, nomeCidade);
+                break;
+            }
             case 0:
                 printf("Saindo...\n");
                 break;
