@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "grafo.h"
 
 Grafo* criarGrafo(int numVertices) {
@@ -137,4 +138,188 @@ int quantidadeVizinhos(Grafo* g, char* nomeCidade) {
         atual = atual->prox;
     }
     return cont;
+}
+
+// ---------- Menor caminho (Dijkstra) ----------
+void menorCaminho(Grafo* g, char* origem, char* destino) {
+    int n = g->numVertices;
+    int dist[n], visitado[n], anterior[n];
+    int i;
+
+    int start = buscarIndiceCidade(g, origem);
+    int end   = buscarIndiceCidade(g, destino);
+
+    if (start == -1 || end == -1) {
+        printf("Cidade(s) nao encontrada(s).\n");
+        return;
+    }
+
+    for (i = 0; i < n; i++) {
+        dist[i] = INT_MAX;
+        visitado[i] = 0;
+        anterior[i] = -1;
+    }
+    dist[start] = 0;
+
+    for (i = 0; i < n-1; i++) {
+        int u = -1, min = INT_MAX;
+        for (int j = 0; j < n; j++) {
+            if (!visitado[j] && dist[j] < min) {
+                min = dist[j];
+                u = j;
+            }
+        }
+        if (u == -1) break;
+        visitado[u] = 1;
+
+        Aresta* a = g->vertices[u].lista;
+        while (a) {
+            if (!visitado[a->destino] && dist[u] + a->peso < dist[a->destino]) {
+                dist[a->destino] = dist[u] + a->peso;
+                anterior[a->destino] = u;
+            }
+            a = a->prox;
+        }
+    }
+
+    if (dist[end] == INT_MAX) {
+        printf("Nao existe caminho entre %s e %s.\n", origem, destino);
+        return;
+    }
+
+    printf("Menor distancia entre %s e %s = %d\n", origem, destino, dist[end]);
+
+    // reconstruir caminho
+    int caminho[n], tam = 0, v = end;
+    while (v != -1) {
+        caminho[tam++] = v;
+        v = anterior[v];
+    }
+    printf("Caminho: ");
+    for (i = tam-1; i >= 0; i--) {
+        printf("%s ", g->vertices[caminho[i]].nome);
+        if (i > 0) printf("-> ");
+    }
+    printf("\n");
+}
+
+// ---------- Verifica se grafo é conexo ----------
+void dfsConexo(Grafo* g, int v, int* visitado) {
+    visitado[v] = 1;
+    Aresta* a = g->vertices[v].lista;
+    while (a) {
+        if (!visitado[a->destino]) dfsConexo(g, a->destino, visitado);
+        a = a->prox;
+    }
+}
+
+int ehConexo(Grafo* g) {
+    int n = g->numVertices;
+    int visitado[n];
+    for (int i = 0; i < n; i++) visitado[i] = 0;
+
+    dfsConexo(g, 0, visitado);
+
+    for (int i = 0; i < n; i++) {
+        if (!visitado[i]) {
+            printf("A rede NAO eh conexa.\n");
+            return 0;
+        }
+    }
+    printf("A rede eh conexa.\n");
+    return 1;
+}
+
+// ---------- Cidades críticas (articulação) ----------
+int tempo;
+
+void dfsArt(Grafo* g, int u, int pai, int* visitado, int* disc, int* low, int* articulacao) {
+    int filhos = 0;
+    visitado[u] = 1;
+    disc[u] = low[u] = ++tempo;
+
+    Aresta* a = g->vertices[u].lista;
+    while (a) {
+        int v = a->destino;
+        if (!visitado[v]) {
+            filhos++;
+            dfsArt(g, v, u, visitado, disc, low, articulacao);
+            low[u] = (low[u] < low[v]) ? low[u] : low[v];
+
+            if ((pai != -1 && low[v] >= disc[u]) || (pai == -1 && filhos > 1)) {
+                articulacao[u] = 1;
+            }
+        } else if (v != pai) {
+            if (low[u] > disc[v]) low[u] = disc[v];
+        }
+        a = a->prox;
+    }
+}
+
+void cidadesCriticas(Grafo* g) {
+    int n = g->numVertices;
+    int visitado[n], disc[n], low[n], articulacao[n];
+
+    for (int i = 0; i < n; i++) {
+        visitado[i] = disc[i] = low[i] = 0;
+        articulacao[i] = 0;
+    }
+    tempo = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (!visitado[i]) dfsArt(g, i, -1, visitado, disc, low, articulacao);
+    }
+
+    printf("Cidades criticas: ");
+    int achou = 0;
+    for (int i = 0; i < n; i++) {
+        if (articulacao[i]) {
+            printf("%s ", g->vertices[i].nome);
+            achou = 1;
+        }
+    }
+    if (!achou) printf("Nenhuma");
+    printf("\n");
+}
+
+// ---------- Passeio turístico circular ----------
+int dfsCiclo(Grafo* g, int atual, int inicio, int profundidade, int* visitado, int* caminho) {
+    visitado[atual] = 1;
+    caminho[profundidade] = atual;
+
+    Aresta* a = g->vertices[atual].lista;
+    while (a) {
+        if (a->destino == inicio && profundidade >= 3) {
+            caminho[profundidade+1] = inicio;
+            return profundidade+1;
+        }
+        if (!visitado[a->destino]) {
+            int tam = dfsCiclo(g, a->destino, inicio, profundidade+1, visitado, caminho);
+            if (tam > 0) return tam;
+        }
+        a = a->prox;
+    }
+
+    visitado[atual] = 0;
+    return 0;
+}
+
+void passeioTuristico(Grafo* g) {
+    int n = g->numVertices;
+    int visitado[n], caminho[n+1];
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) visitado[j] = 0;
+        int tam = dfsCiclo(g, i, i, 0, visitado, caminho);
+        if (tam > 0) {
+            printf("Existe passeio turistico: ");
+            for (int k = 0; k <= tam; k++) {
+                printf("%s ", g->vertices[caminho[k]].nome);
+                if (k < tam) printf("-> ");
+            }
+            printf("\n");
+            return;
+        }
+    }
+    printf("Nao existe passeio turistico com 4 ou mais cidades.\n");
 }

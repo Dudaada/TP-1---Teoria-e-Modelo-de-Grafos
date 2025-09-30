@@ -15,7 +15,7 @@ typedef struct Vertice {
 typedef struct Grafo {
     int numVertices;        // Número de cidades
     int numArestas;         // Número de estradas
-    Vertice* vertices;      // Vetor de vértices
+    Vertice* vertices;     // Vetor de vértices
 } Grafo;
 
 
@@ -42,5 +42,10 @@ void liberarGrafo(Grafo* g);
 
 // Retorna (imprime) os vizinhos de uma cidade
 void vizinhosCidade(Grafo* g, char* nomeCidade);
+
+void menorCaminho(Grafo* g, char* origem, char* destino);
+int ehConexo(Grafo* g);
+void cidadesCriticas(Grafo* g);
+void passeioTuristico(Grafo* g);
 
 #endif
