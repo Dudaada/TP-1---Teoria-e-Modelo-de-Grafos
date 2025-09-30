@@ -43,9 +43,15 @@ void liberarGrafo(Grafo* g);
 // Retorna (imprime) os vizinhos de uma cidade
 void vizinhosCidade(Grafo* g, char* nomeCidade);
 
+// Retorna a quantidade de vizinhos de uma cidade
+int quantidadeVizinhos(Grafo* g, char* nomeCidade);
+
 void menorCaminho(Grafo* g, char* origem, char* destino);
+
 int ehConexo(Grafo* g);
+
 void cidadesCriticas(Grafo* g);
+
 void passeioTuristico(Grafo* g);
 
 #endif
