@@ -4,13 +4,14 @@
 #include <limits.h>
 #include "grafo.h"
 
-Grafo* criarGrafo(int numVertices) {
+Grafo* criarGrafo(int capacidadeInicial) {
     Grafo* g = (Grafo*) malloc(sizeof(Grafo));
     g->numVertices = 0; 
     g->numArestas = 0;
-    g->vertices = (Vertice*) malloc(numVertices * sizeof(Vertice));
+    g->capacidade = capacidadeInicial;
+    g->vertices = (Vertice*) malloc(capacidadeInicial * sizeof(Vertice));
 
-    for (int i = 0; i < numVertices; i++) {
+    for (int i = 0; i < capacidadeInicial; i++) {
         g->vertices[i].nome[0] = '\0';
         g->vertices[i].lista = NULL;
     }
@@ -29,6 +30,23 @@ int buscarIndiceCidade(Grafo* g, char* nome) {
 int adicionarCidade(Grafo* g, char* nome) {
     int indice = buscarIndiceCidade(g, nome);
     if (indice == -1) {
+        // Verifica se precisa aumentar a capacidade
+        if (g->numVertices == g->capacidade) {
+            int novaCapacidade = g->capacidade * 2;
+            Vertice* temp = (Vertice*) realloc(g->vertices, novaCapacidade * sizeof(Vertice));
+            if (!temp) {
+                printf("Erro de alocacao de memoria!\n");
+                exit(1);
+            }
+            g->vertices = temp;
+            // Inicializa os novos vértices
+            for (int i = g->capacidade; i < novaCapacidade; i++) {
+                g->vertices[i].nome[0] = '\0';
+                g->vertices[i].lista = NULL;
+            }
+            g->capacidade = novaCapacidade;
+        }
+
         strcpy(g->vertices[g->numVertices].nome, nome);
         g->vertices[g->numVertices].lista = NULL;
         indice = g->numVertices;
@@ -36,6 +54,7 @@ int adicionarCidade(Grafo* g, char* nome) {
     }
     return indice;
 }
+
 
 void adicionarAresta(Grafo* g, char* origem, char* destino, int peso) {
     int idxOrigem = adicionarCidade(g, origem);

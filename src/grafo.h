@@ -15,7 +15,8 @@ typedef struct Vertice {
 typedef struct Grafo {
     int numVertices;        // Número de cidades
     int numArestas;         // Número de estradas
-    Vertice* vertices;     // Vetor de vértices
+    int capacidade;         // Capacidade atual do vetor de vertices
+    Vertice* vertices;      // Vetor de vértices
 } Grafo;
 
 
