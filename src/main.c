@@ -67,15 +67,12 @@ int main() {
                 menorCaminho(g, cidadeOrigem, cidadeDestino);
                 break;
             case 7:
-                // A função ehConexo já imprime o resultado
                 ehConexo(g);
                 break;
             case 8:
-                // A função cidadesCriticas já imprime o resultado
                 cidadesCriticas(g);
                 break;
             case 9:
-                // A função passeioTuristico já verifica e imprime o exemplo
                 passeioTuristico(g);
                 break;
             case 0:
